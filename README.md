@@ -10,7 +10,7 @@ house engines, ranked by Elo.
 
 ## How it plays
 
-`main.py` is the whole engine (3,831 bytes, an LZMA packing of the
+`main.py` is the whole engine (3,935 bytes, an LZMA packing of the
 readable `engine.py` source beside it). It talks to the trial env only:
 
 - `POST /game {}` serves the game in play: FEN, legal moves, colour.
@@ -26,14 +26,16 @@ replay matches its live pass move for move.
 - 0x88 board, pseudo-legal move generation filtered by king safety,
   with castling, en passant, promotion and the fifty-move clock.
 - Negamax alpha-beta with quiescence (captures and promotions, plus
-  every reply while in check) and iterative deepening, depth 1 to 5.
-- One limit only: a fixed budget of 14,000 nodes a move. When an
-  iteration would pass it, the best move of the last finished depth
-  stands, so every move is deterministic and well inside the 10 s
-  move limit (about 2.5 s a move on one CPU).
+  every reply while in check). A position with no legal move is scored
+  as mate or stalemate even at the horizon, never stood pat on.
+- Iterative deepening, depth 1 to 5, under one limit only: a fixed
+  budget of 10,000 nodes a move. When an iteration would pass it, the
+  best move of the last finished depth stands; a growth estimate stops
+  deepening before a depth that would not finish, so a move takes
+  about 1-2 s on one CPU, well inside the 10 s move limit.
 - Static eval: material (P 100, N 320, B 330, R 500, Q 900) plus
   pawn advancement, centralisation for knights and bishops, rooks on
-  the seventh, a bishop-pair bonus and a small tempo term.
+  the seventh, a bishop-pair bonus, king safety (pawn shield), and a tempo term.
 
 ## Checks done locally
 
@@ -41,7 +43,8 @@ replay matches its live pass move for move.
   depths 1-3 (20, 400, 8902), Kiwipete to depth 3 (48, 2039, 97862),
   the en-passant pin position to depth 3 (14, 191, 2812), and the
   promotion position to depth 2 (44, 1486).
-- Finds mate in 1 (Qf7-e8# and Qf7-g7# both mate in the test position).
+- Finds mate in 1 (Qf7-e8# and Qf7-g7# both mate in the test position),
+  scored as mate already at depth 1.
 - Move choice is deterministic: repeated runs return the same move.
 
 ## Layout
