@@ -5,19 +5,18 @@
 # Tiny Chess v7
 
 A small alpha-beta chess engine in 4 KB of Python, written for the
-make.fun tiny-chess-01 bounty: 16 games a trial against eight fixed
+make.fun tiny-chess-01 bounty: 6 games a trial against six fixed
 house engines, ranked by Elo.
 
 Version 7 rebuilds the version 5 engine for strength. The search
 keeps the same 0x88 board and the same fixed node budget, but adds
 piece-square tables, killer and history move ordering, and null-move
-pruning, and searches one depth deeper. Round 6 (version 5) scored
-997 on the platform's practice grade, under the 1,154 final floor;
-this version aims to clear it.
+pruning, and searches one depth deeper. Round 6 scored 997,
+under the 1,154 final floor.
 
 ## How it plays
 
-`main.py` is the whole engine (3,380 bytes, an LZMA packing of the
+`main.py` is the whole engine (3,381 bytes, an LZMA packing of the
 readable `engine.py` source beside it). It talks to the trial env only:
 
 - `POST /game {}` serves the game in play: FEN, legal moves, colour.
@@ -36,10 +35,9 @@ replay matches its live pass move for move.
   every reply while in check). A position with no legal move is scored
   as mate or stalemate even at the horizon, never stood pat on.
 - Move ordering: captures by MVV-LVA, promotions, then two killer
-  moves per ply and a history table, reset at every move so a move
-  depends only on its position.
+  moves per ply and a history table, reset at every move.
 - Null-move pruning (R = 2, depth 3 and up, never while in check).
-- Iterative deepening, depth 1 to 6, under one limit only: a fixed
+- Iterative deepening, depth 1 to 7, under one limit only: a fixed
   budget of 10,000 nodes a move. When an iteration would pass it, the
   best move of the last finished depth stands; a growth estimate stops
   deepening before a depth that would not finish, so a move takes
